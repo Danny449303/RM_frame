@@ -84,6 +84,12 @@ void ChassisStop(){
 /*麦轮四个轮子速度在这里，后续修改需要修改正负号的问题*/
 void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity) {
     float CMFLSpeed, CMFRSpeed, CMBLSpeed, CMBRSpeed;
+    // ========== 摇杆输入死区（兜底） ==========
+    const float DEAD_ZONE = 0.02f;
+    if(fabsf(fbVelocity) < DEAD_ZONE) fbVelocity = 0.0f;
+    if(fabsf(lrVelocity) < DEAD_ZONE) lrVelocity = 0.0f;
+    if(fabsf(rtVelocity) < DEAD_ZONE) rtVelocity = 0.0f;
+    // =========================================
     // 注意！！！controltask里传入rt是60，单位是RPM，所以这里保留RPM2RADpS转换
     rtVelocity = RPM2RADpS(rtVelocity);
 
@@ -95,6 +101,15 @@ void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity) {
     CMBLSpeed = fbVelocity + lrVelocity - L * rtVelocity;
     CMBRSpeed = fbVelocity - lrVelocity + L * rtVelocity;
 
+    // ========== 轮子线速度限幅，m/s，3508麦轮常用值3~5m/s，按需修改 ==========
+    const float MAX_WHEEL_LINE_SPEED = 4.0f;
+    CMFLSpeed = fminf(fmaxf(CMFLSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
+    CMFRSpeed = fminf(fmaxf(CMFRSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
+    CMBLSpeed = fminf(fmaxf(CMBLSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
+    CMBRSpeed = fminf(fmaxf(CMBRSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
+    // ========================================================================
+    //
+    //
     //线速度转轮子角速度 rad/s
     CMFLSpeed = CMFLSpeed / (WHEEL_DIAMETER / 2.0f);
     CMFRSpeed = CMFRSpeed / (WHEEL_DIAMETER / 2.0f);
