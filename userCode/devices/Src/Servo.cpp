@@ -4,7 +4,7 @@
 
 #include "Servo.h"
 
-const SERVO_HANDLE_T servoInfo[7]={
+const SERVO_HANDLE_T servoInfo[8]={
         {&htim1, TIM_CHANNEL_1},
         {&htim1, TIM_CHANNEL_2},
         {&htim1, TIM_CHANNEL_3},
@@ -12,6 +12,7 @@ const SERVO_HANDLE_T servoInfo[7]={
         {&htim8, TIM_CHANNEL_1},
         {&htim8, TIM_CHANNEL_2},
         {&htim8, TIM_CHANNEL_3},
+        {&htim2, TIM_CHANNEL_1}, //夹取模块串口
 };
 
 uint32_t Servo::servo_IDs;
@@ -21,6 +22,7 @@ uint32_t Servo::servo_IDs;
 void Servo::Init() {
     HAL_TIM_Base_Start_IT(&htim1);
     HAL_TIM_Base_Start_IT(&htim8);
+    HAL_TIM_Base_Start_IT(&htim2);
 }
 /**
  * @brief 舵机的构造函数，进行舵机的初始化设置

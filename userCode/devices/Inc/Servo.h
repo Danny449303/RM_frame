@@ -71,6 +71,7 @@ public:
 #define SERVO_ID_5 0x010
 #define SERVO_ID_6 0x020
 #define SERVO_ID_7 0x040
+#define SERVO_ID_8 0x080
 
 /*外部变量声明-------------------------------------------------------------*/
 
