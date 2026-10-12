@@ -84,12 +84,6 @@ void ChassisStop(){
 /*麦轮四个轮子速度在这里，后续修改需要修改正负号的问题*/
 void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity) {
     float CMFLSpeed, CMFRSpeed, CMBLSpeed, CMBRSpeed;
-    // ========== 摇杆输入死区（兜底） ==========
-    const float DEAD_ZONE = 0.02f;
-    if(fabsf(fbVelocity) < DEAD_ZONE) fbVelocity = 0.0f;
-    if(fabsf(lrVelocity) < DEAD_ZONE) lrVelocity = 0.0f;
-    if(fabsf(rtVelocity) < DEAD_ZONE) rtVelocity = 0.0f;
-    // =========================================
     // 注意！！！controltask里传入rt是60，单位是RPM，所以这里保留RPM2RADpS转换
     rtVelocity = RPM2RADpS(rtVelocity);
 
