@@ -2,6 +2,8 @@
 // Created by LEGION on 2021/10/4.
 //
 #include "UserTask.h"
+#include "RemoteControl.h"
+#include "Servo.h"
 
 PID_Regulator_t userPidRegulator = {
         .kp = 60,
@@ -46,6 +48,7 @@ void UserStop(){
  */
 void UserInit(){
     printf("夹爪舵机初始化完成！\r\n");
+    printf("ET08遥控器控制夹爪就绪\r\n");
 }
 
 static bool clawOpenFlag = true;
@@ -55,20 +58,20 @@ static uint32_t tickCount = 0;
  */
 void UserHandle(){
     UserMotor.Handle();
-    // ========= 舵机测试逻辑，每1000个周期切换一次开合 =========
-    tickCount ++;
-    if(tickCount >= 1000)
+
+    // 读取ET08拨码开关 SW1 s[0]
+    uint32_t sw1_state = RemoteControl::rc_ctrl.rc.s[0];
+
+    if(sw1_state == UP_POS || sw1_state == MID_POS)
     {
-        tickCount = 0;
-        if(clawOpenFlag)
-        {
-            clawServo.SetTargetAngle(0.0f);   // 张开
-        }
-        else
-        {
-            clawServo.SetTargetAngle(180.0f); // 闭合
-        }
-        clawOpenFlag = !clawOpenFlag;
+        // 上挡 / 中挡：夹爪张开
+        clawServo.SetTargetAngle(0.0f);
     }
-    clawServo.Handle(); // 必须周期调用，刷新PWM输出！
+    else if(sw1_state == DOWN_POS)
+    {
+        // 下挡：夹爪闭合
+        clawServo.SetTargetAngle(180.0f);
+    }
+
+    clawServo.Handle(); //必须每次调用刷新PWM
 }
