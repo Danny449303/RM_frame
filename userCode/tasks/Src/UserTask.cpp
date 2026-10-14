@@ -72,6 +72,5 @@ void UserHandle(){
         // 下挡：夹爪闭合
         clawServo.SetTargetAngle(180.0f);
     }
-
     clawServo.Handle(); //必须每次调用刷新PWM
 }
