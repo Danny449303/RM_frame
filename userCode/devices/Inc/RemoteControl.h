@@ -47,8 +47,11 @@ class RemoteControl : public Device {
 public:
     static RC_Info_t rcInfo;
     static RC_ctrl_t rc_ctrl;
+    static volatile uint32_t lastFrameTick;
+    static volatile bool hasReceivedFrame;
 
     static void init();
+    static bool IsOnline(uint32_t timeoutMs);
     static void ITHandle();
     static uint8_t sbus_rx_buf[2][SBUS_RX_BUF_NUM];
     static void sbus_to_rc(volatile const uint8_t *sbus_buf);

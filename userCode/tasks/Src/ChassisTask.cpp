@@ -6,7 +6,7 @@
 PID_Regulator_t pidFL = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 PID_Regulator_t pidFR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 PID_Regulator_t pidBL = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
-PID_Regulator_t pidBR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 16384};
+PID_Regulator_t pidBR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 
 MOTOR_INIT_t chassisMotorInitFL = {.speedPIDp = &pidFL,.anglePIDp = nullptr,._motorID = MOTOR_ID_1,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
 MOTOR_INIT_t chassisMotorInitFR = {.speedPIDp = &pidFR,.anglePIDp = nullptr,._motorID = MOTOR_ID_2,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
@@ -95,13 +95,18 @@ void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity) {
     CMBLSpeed = fbVelocity + lrVelocity - L * rtVelocity;
     CMBRSpeed = fbVelocity - lrVelocity + L * rtVelocity;
 
-    // ========== 轮子线速度限幅，m/s，3508麦轮常用值3~5m/s，按需修改 ==========
+    // 轮速超限时按同一比例缩放四轮，保留平移与旋转指令的方向比例
     const float MAX_WHEEL_LINE_SPEED = 4.0f;
-    CMFLSpeed = fminf(fmaxf(CMFLSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
-    CMFRSpeed = fminf(fmaxf(CMFRSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
-    CMBLSpeed = fminf(fmaxf(CMBLSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
-    CMBRSpeed = fminf(fmaxf(CMBRSpeed, -MAX_WHEEL_LINE_SPEED), MAX_WHEEL_LINE_SPEED);
-    // ========================================================================
+    const float maxWheelLineSpeed = fmaxf(
+            fmaxf(fabsf(CMFLSpeed), fabsf(CMFRSpeed)),
+            fmaxf(fabsf(CMBLSpeed), fabsf(CMBRSpeed)));
+    if (maxWheelLineSpeed > MAX_WHEEL_LINE_SPEED) {
+        const float scale = MAX_WHEEL_LINE_SPEED / maxWheelLineSpeed;
+        CMFLSpeed *= scale;
+        CMFRSpeed *= scale;
+        CMBLSpeed *= scale;
+        CMBRSpeed *= scale;
+    }
     //
     //
     //线速度转轮子角速度 rad/s

@@ -19,9 +19,15 @@ float PID::PIDCalc(float target,float feedback) {
     PIDInfo.ref = target;
     PIDInfo.err[3] = PIDInfo.ref - PIDInfo.fdb;
     PIDInfo.componentKp = PIDInfo.err[3] * PIDInfo.kp;
-    PIDInfo.errSum += PIDInfo.err[3];
-    INRANGE(PIDInfo.errSum, -1 * PIDInfo.componentKiMax / PIDInfo.ki, PIDInfo.componentKiMax / PIDInfo.ki);
-    PIDInfo.componentKi = PIDInfo.errSum * PIDInfo.ki;
+    if (PIDInfo.ki != 0.0f) {
+        PIDInfo.errSum += PIDInfo.err[3];
+        const float errSumMax = fabsf(PIDInfo.componentKiMax / PIDInfo.ki);
+        INRANGE(PIDInfo.errSum, -errSumMax, errSumMax);
+        PIDInfo.componentKi = PIDInfo.errSum * PIDInfo.ki;
+    } else {
+        PIDInfo.errSum = 0.0f;
+        PIDInfo.componentKi = 0.0f;
+    }
     PIDInfo.componentKd = (PIDInfo.err[3] - PIDInfo.err[2]) * PIDInfo.kd;
     INRANGE(PIDInfo.componentKp, -1 * PIDInfo.componentKpMax, PIDInfo.componentKpMax);
     INRANGE(PIDInfo.componentKi, -1 * PIDInfo.componentKiMax, PIDInfo.componentKiMax);

@@ -6,6 +6,8 @@
 
 RC_Info_t RemoteControl::rcInfo;
 RC_ctrl_t RemoteControl::rc_ctrl;
+volatile uint32_t RemoteControl::lastFrameTick = 0;
+volatile bool RemoteControl::hasReceivedFrame = false;
 
 uint8_t RemoteControl::sbus_rx_buf[2][SBUS_RX_BUF_NUM];
 
@@ -66,7 +68,12 @@ void RemoteControl::sbus_to_rc(const volatile uint8_t *sbus_buf) {
     rcInfo.sRight = (SWITCH_STATE_E)rc_ctrl.rc.s[1];
     rcInfo.optional[0] = rc_ctrl.rc.optional[0];
     rcInfo.optional[1] = rc_ctrl.rc.optional[1];
+    lastFrameTick = HAL_GetTick();
+    hasReceivedFrame = true;
 
+}
+bool RemoteControl::IsOnline(uint32_t timeoutMs) {
+    return hasReceivedFrame && (uint32_t)(HAL_GetTick() - lastFrameTick) <= timeoutMs;
 }
 void RemoteControl::ITHandle() {
     if (huart3.Instance->SR & UART_FLAG_RXNE)//接收到数据
