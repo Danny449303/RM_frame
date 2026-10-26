@@ -6,7 +6,7 @@
 PID_Regulator_t pidFL = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 PID_Regulator_t pidFR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 PID_Regulator_t pidBL = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
-PID_Regulator_t pidBR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 16384};
+PID_Regulator_t pidBR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 
 MOTOR_INIT_t chassisMotorInitFL = {.speedPIDp = &pidFL,.anglePIDp = nullptr,._motorID = MOTOR_ID_1,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
 MOTOR_INIT_t chassisMotorInitFR = {.speedPIDp = &pidFR,.anglePIDp = nullptr,._motorID = MOTOR_ID_2,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};

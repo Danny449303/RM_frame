@@ -58,10 +58,11 @@ void RemoteControl::sbus_to_rc(const volatile uint8_t *sbus_buf) {
     rc_ctrl.rc.ch[1] -= RC_CH_VALUE_OFFSET;
     rc_ctrl.rc.ch[2] -= RC_CH_VALUE_OFFSET;
     rc_ctrl.rc.ch[3] -= RC_CH_VALUE_OFFSET;
-    rcInfo.right_rol = rc_ctrl.rc.ch[0]/671.0f;
-    rcInfo.left_col = rc_ctrl.rc.ch[1]/671.0f;
-    rcInfo.right_col = rc_ctrl.rc.ch[2]/671.0f;
-    rcInfo.left_rol = rc_ctrl.rc.ch[3]/671.0f;
+    // ET08 实测通道顺序：CH1=右摇杆上下, CH2=右摇杆左右, CH3=左摇杆上下, CH4=左摇杆左右
+    rcInfo.right_col = rc_ctrl.rc.ch[0]/671.0f;
+    rcInfo.right_rol = rc_ctrl.rc.ch[1]/671.0f;
+    rcInfo.left_col  = rc_ctrl.rc.ch[2]/671.0f;
+    rcInfo.left_rol  = rc_ctrl.rc.ch[3]/671.0f;
     rcInfo.sLeft = (SWITCH_STATE_E)rc_ctrl.rc.s[0];
     rcInfo.sRight = (SWITCH_STATE_E)rc_ctrl.rc.s[1];
     rcInfo.optional[0] = rc_ctrl.rc.optional[0];
