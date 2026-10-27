@@ -12,8 +12,9 @@ void CtrlHandle(){
         switch (RemoteControl::rcInfo.sLeft)
         {
         case UP_POS: //左侧一档
-            ChassisSetVelocity(RemoteControl::rcInfo.right_col*4.2,
-                               RemoteControl::rcInfo.right_rol*4.2,RemoteControl::rcInfo.left_rol*60);
+            ChassisSetVelocity(RemoteControl::rcInfo.right_rol*4.2,
+                               RemoteControl::rcInfo.right_col*4.2,
+                               -RemoteControl::rcInfo.left_rol*60);
             break;
         case MID_POS: //左侧二档
 

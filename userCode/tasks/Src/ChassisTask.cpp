@@ -8,14 +8,15 @@ PID_Regulator_t pidFR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.compo
 PID_Regulator_t pidBL = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 PID_Regulator_t pidBR = {.kp = 60,.ki = 0,.kd = 0,.componentKpMax = 16384,.componentKiMax = 0,.componentKdMax = 0,.outputMax = 16384};
 
-MOTOR_INIT_t chassisMotorInitFL = {.speedPIDp = &pidFL,.anglePIDp = nullptr,._motorID = MOTOR_ID_1,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
-MOTOR_INIT_t chassisMotorInitFR = {.speedPIDp = &pidFR,.anglePIDp = nullptr,._motorID = MOTOR_ID_2,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
-MOTOR_INIT_t chassisMotorInitBL = {.speedPIDp = &pidBL,.anglePIDp = nullptr,._motorID = MOTOR_ID_3,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
+MOTOR_INIT_t chassisMotorInitFL = {.speedPIDp = &pidFL,.anglePIDp = nullptr,._motorID = MOTOR_ID_2,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
+MOTOR_INIT_t chassisMotorInitFR = {.speedPIDp = &pidFR,.anglePIDp = nullptr,._motorID = MOTOR_ID_3,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
+MOTOR_INIT_t chassisMotorInitBL = {.speedPIDp = &pidBL,.anglePIDp = nullptr,._motorID = MOTOR_ID_1,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
 MOTOR_INIT_t chassisMotorInitBR = {.speedPIDp = &pidBR,.anglePIDp = nullptr,._motorID = MOTOR_ID_4,.reductionRatio = 19.0f,.ctrlType = SPEED_Single};
 
-Motor CMFL(MOTOR_ID_1,&chassisMotorInitFL);
-Motor CMFR(MOTOR_ID_2,&chassisMotorInitFR);
-Motor CMBL(MOTOR_ID_3,&chassisMotorInitBL);
+// 实车电调 ID：左前=2, 右前=3, 左后=1, 右后=4
+Motor CMFL(MOTOR_ID_2,&chassisMotorInitFL);
+Motor CMFR(MOTOR_ID_3,&chassisMotorInitFR);
+Motor CMBL(MOTOR_ID_1,&chassisMotorInitBL);
 Motor CMBR(MOTOR_ID_4,&chassisMotorInitBR);
 //这里把四个电机的pidRegulator改成四个独立的，防止积分污染
 /*PID_Regulator_t pidRegulator = {//此为储存pid参数的结构体，四个底盘电机共用
@@ -100,6 +101,11 @@ void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity) {
     CMFRSpeed = fbVelocity + lrVelocity + L * rtVelocity;
     CMBLSpeed = fbVelocity + lrVelocity - L * rtVelocity;
     CMBRSpeed = fbVelocity - lrVelocity + L * rtVelocity;
+
+    // 右侧两个电机的正方向和左侧相反：代码里统一取反，
+    // 否则 fb 会变成旋转、rt 会变成前后。
+    CMFRSpeed = -CMFRSpeed;
+    CMBRSpeed = -CMBRSpeed;
 
     // ========== 轮子线速度限幅，m/s，3508麦轮常用值3~5m/s，按需修改 ==========
     const float MAX_WHEEL_LINE_SPEED = 4.0f;
