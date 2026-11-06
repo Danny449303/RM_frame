@@ -75,4 +75,19 @@ public:
 /*外部变量声明-------------------------------------------------------------*/
 
 /*外部函数声明-------------------------------------------------------------*/
+
+/*
+ * PCA9685 16 路 PWM 驱动（I2C3）
+ * 50Hz，12-bit，舵机脉宽 500~2500us
+ */
+class PCA9685 {
+public:
+    static void Init();
+    static void SetPulse(uint8_t channel, uint16_t pulseUs);
+    static void SetAngle(uint8_t channel, float angle);
+private:
+    static void WriteReg(uint8_t reg, uint8_t value);
+    static void WriteRegs(uint8_t reg, const uint8_t *buf, uint8_t len);
+};
+
 #endif //RM_FRAME_C_SERVO_H

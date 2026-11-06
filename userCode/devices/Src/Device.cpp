@@ -269,6 +269,7 @@ int main(void)
     MX_CAN1_Init();
     MX_CAN2_Init();
     MX_I2C3_Init();
+    MX_I2C2_Init();
     MX_SPI1_Init();
     MX_SPI2_Init();
     // MX_IWDG_Init();
@@ -297,6 +298,7 @@ int main(void)
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+        UserOutput();   // PCA9685 舵机输出，放在主循环避免阻塞 1ms 中断
     }
     /* USER CODE END 3 */
 }

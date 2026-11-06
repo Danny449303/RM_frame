@@ -102,3 +102,63 @@ void Servo::ErrorHandle() {
 
 }
 
+/* ================= PCA9685 ================= */
+#define PCA9685_I2C_ADDR   (0x40u << 1)
+#define PCA9685_MODE1      0x00u
+#define PCA9685_MODE2      0x01u
+#define PCA9685_PRESCALE   0xFEu
+
+void PCA9685::WriteReg(uint8_t reg, uint8_t value)
+{
+    HAL_I2C_Mem_Write(&hi2c2, PCA9685_I2C_ADDR, reg,
+                      I2C_MEMADD_SIZE_8BIT, &value, 1, 5);
+}
+
+void PCA9685::WriteRegs(uint8_t reg, const uint8_t *buf, uint8_t len)
+{
+    HAL_I2C_Mem_Write(&hi2c2, PCA9685_I2C_ADDR, reg,
+                      I2C_MEMADD_SIZE_8BIT, (uint8_t *)buf, len, 5);
+}
+
+void PCA9685::Init()
+{
+    // 50Hz：prescale = round(25MHz / (4096 * 50)) - 1 = 121
+    WriteReg(PCA9685_MODE1, 0x10);   // sleep
+    WriteReg(PCA9685_PRESCALE, 121);
+    HAL_Delay(2);
+    WriteReg(PCA9685_MODE1, 0xA0);   // restart + auto-increment
+    HAL_Delay(5);
+    WriteReg(PCA9685_MODE2, 0x04);   // totem pole output
+
+    // 上电先全部置 0，避免舵机乱跳
+    for (uint8_t ch = 0; ch < 16; ch++) {
+        SetPulse(ch, 0);
+    }
+}
+
+void PCA9685::SetPulse(uint8_t channel, uint16_t pulseUs)
+{
+    if (channel >= 16) return;
+
+    uint32_t count = ((uint32_t)pulseUs * 4096u) / 20000u;
+    if (count > 4095u) count = 4095u;
+
+    uint8_t buf[4];
+    buf[0] = 0;                  // LEDn_ON_L
+    buf[1] = 0;                  // LEDn_ON_H
+    buf[2] = (uint8_t)(count & 0xFF);
+    buf[3] = (uint8_t)(count >> 8);
+
+    WriteRegs((uint8_t)(0x06u + 4u * channel), buf, 4);
+}
+
+void PCA9685::SetAngle(uint8_t channel, float angle)
+{
+    if (angle < 0.0f) angle = 0.0f;
+    if (angle > 180.0f) angle = 180.0f;
+
+    // 180° 舵机：0.5ms~2.5ms
+    uint16_t pulse = (uint16_t)(500.0f + angle * (2000.0f / 180.0f));
+    SetPulse(channel, pulse);
+}
+

@@ -58,13 +58,34 @@ void RemoteControl::sbus_to_rc(const volatile uint8_t *sbus_buf) {
     rc_ctrl.rc.ch[1] -= RC_CH_VALUE_OFFSET;
     rc_ctrl.rc.ch[2] -= RC_CH_VALUE_OFFSET;
     rc_ctrl.rc.ch[3] -= RC_CH_VALUE_OFFSET;
-    // ET08 实测通道顺序：CH1=右左右, CH2=左左右, CH3=左上下(油门), CH4=右上下
-    rcInfo.right_rol = rc_ctrl.rc.ch[0]/671.0f;
-    rcInfo.left_rol  = rc_ctrl.rc.ch[1]/671.0f;
-    rcInfo.left_col  = rc_ctrl.rc.ch[2]/671.0f;
-    rcInfo.right_col = rc_ctrl.rc.ch[3]/671.0f;
-    rcInfo.sLeft = (SWITCH_STATE_E)rc_ctrl.rc.s[0];
-    rcInfo.sRight = (SWITCH_STATE_E)rc_ctrl.rc.s[1];
+    // ET08 通道分配（不改遥控器通道）：
+    // CH1=J1右摇杆左右, CH2=J3右摇杆上下, CH3=LD左旋钮, CH4=J4左摇杆左右,
+    // CH5=SA(A按钮), CH6=SB(B急停), CH7=SC(第三个按钮), CH8=RD右旋钮
+    rcInfo.right_rol = rc_ctrl.rc.ch[0] / 671.0f;
+    rcInfo.right_col = rc_ctrl.rc.ch[1] / 671.0f;
+    rcInfo.left_knob = rc_ctrl.rc.ch[2] / 1024.0f;
+    if (rcInfo.left_knob > 1.0f) rcInfo.left_knob = 1.0f;
+    if (rcInfo.left_knob < -1.0f) rcInfo.left_knob = -1.0f;
+    rcInfo.left_rol = rc_ctrl.rc.ch[3] / 671.0f;
+
+    // 开关默认按“上档=低值、下档=高值”解析；
+    // 如果实际方向相反，把下面各行的 UP/DOWN 对调。
+    // CH5 A（2 档）
+    rcInfo.buttonA = (rc_ctrl.rc.s[0] < 1024u) ? SWITCH_UP : SWITCH_DOWN;
+    // CH6 B（3 档，下档急停）
+    if (rc_ctrl.rc.s[1] < 500u)       rcInfo.buttonB = SWITCH_UP;
+    else if (rc_ctrl.rc.s[1] > 1500u) rcInfo.buttonB = SWITCH_DOWN;
+    else                              rcInfo.buttonB = SWITCH_MID;
+    // CH7 第三个按钮（3 档）
+    if (rc_ctrl.rc.optional[0] < 500)       rcInfo.button3 = SWITCH_UP;
+    else if (rc_ctrl.rc.optional[0] > 1500) rcInfo.button3 = SWITCH_DOWN;
+    else                                    rcInfo.button3 = SWITCH_MID;
+
+    // CH8 右旋钮 RD
+    rcInfo.right_knob = (rc_ctrl.rc.optional[1] - 1024.0f) / 1024.0f;
+    if (rcInfo.right_knob > 1.0f) rcInfo.right_knob = 1.0f;
+    if (rcInfo.right_knob < -1.0f) rcInfo.right_knob = -1.0f;
+
     rcInfo.optional[0] = rc_ctrl.rc.optional[0];
     rcInfo.optional[1] = rc_ctrl.rc.optional[1];
 
